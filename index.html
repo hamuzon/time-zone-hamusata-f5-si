@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>タイム・ゾーン時計</title>
+  <style>
+/* ===== リセット ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== 全体レイアウト ===== */
+html, body {
+  min-height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: linear-gradient(135deg, #d9ead3, #e7f1e9);
+  color: #1a3d2f;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+/* ===== コンテナ ===== */
+.container {
+  width: 100%;
+  max-width: 960px;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+/* ===== タイトル ===== */
+h1 {
+  font-size: 2.2rem;
+  margin-bottom: 2rem;
+  letter-spacing: 0.1em;
+  text-align: center;
+  color: #145214;
+}
+
+/* ===== ゾーン全体のグリッド ===== */
+.zones {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, auto);
+  gap: 2rem;
+  justify-items: center;
+  align-items: start;
+  width: 100%;
+  max-width: 960px;
+}
+
+/* ===== 各ゾーンカード ===== */
+.zone-card {
+  background-color: #c3e0c8;
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 4px 8px rgba(0, 121, 61, 0.25);
+  text-align: center;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  max-width: 440px;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  cursor: default;
+}
+
+.zone-card:hover {
+  background-color: #a0c7a0;
+  box-shadow: 0 6px 12px rgba(0, 121, 61, 0.45);
+}
+
+.zone-name {
+  font-size: 1.4rem;
+  margin-bottom: 0.2rem;
+  font-weight: 700;
+  color: #145214;
+}
+
+.zone-offset {
+  font-size: 1rem;
+  color: #405c33;
+  margin-bottom: 0.6rem;
+  min-width: 70px;
+  font-variant-numeric: tabular-nums;
+}
+
+.date {
+  font-size: 1rem;
+  color: #405c33;
+  margin-bottom: 0.4rem;
+}
+
+.time {
+  font-size: 2.2rem;
+  font-family: monospace;
+  font-weight: bold;
+  color: #264d25;
+  white-space: nowrap;
+}
+
+/* ===== モバイル対応 ===== */
+@media screen and (max-width: 768px) {
+  html, body {
+    padding: 1rem;
+    justify-content: flex-start;
+  }
+
+  .container {
+    max-width: 100%;
+    padding: 0 0.5rem;
+  }
+
+  .zones {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .zone-card {
+    min-height: 140px;
+    padding: 1rem 1.5rem;
+    max-width: 100%;
+  }
+
+  .zone-name {
+    font-size: 1.1rem;
+  }
+
+  .zone-offset {
+    font-size: 0.9rem;
+    min-width: auto;
+    margin-bottom: 0.4rem;
+  }
+
+  .date {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .time {
+    font-size: 1.6rem;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>タイム・ゾーン時計</h1>
+    <div class="zones" id="zones-container"></div>
+  </div>
+
+  <script>
+const zones = [
+  { name: "日本 (Tokyo)", tz: "Asia/Tokyo" },
+  { name: "Google / Apple / Microsoft（カリフォルニア）", tz: "America/Los_Angeles" },
+  { name: "トロント / MIT（東部時間）", tz: "America/New_York" },
+  { name: "グリニッジ標準時 (UTC)", tz: "Etc/UTC" }
+];
+
+function createZoneCards() {
+  const container = document.getElementById('zones-container');
+  zones.forEach(zone => {
+    const card = document.createElement('div');
+    card.className = 'zone-card';
+    card.dataset.timezone = zone.tz;
+
+    card.innerHTML = `
+      <h2 class="zone-name">${zone.name}</h2>
+      <div class="zone-offset"></div>
+      <div class="date"></div>
+      <div class="time"></div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+function updateZones() {
+  const now = new Date();
+
+  document.querySelectorAll('.zone-card').forEach(card => {
+    const tz = card.dataset.timezone;
+
+    try {
+      const formatterTime = new Intl.DateTimeFormat('ja-JP', {
+        timeZone: tz,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+        timeZoneName: 'short'
+      });
+
+      const formatterDate = new Intl.DateTimeFormat('ja-JP', {
+        timeZone: tz,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        weekday: 'short'
+      });
+
+      const parts = formatterTime.formatToParts(now);
+      const timeParts = parts.filter(p => p.type !== 'timeZoneName');
+      const timeStr = timeParts.map(p => p.value).join('');
+      const tzNamePart = parts.find(p => p.type === 'timeZoneName');
+      const tzAbbr = tzNamePart ? tzNamePart.value : '';
+
+      const timeElem = card.querySelector('.time');
+      const dateElem = card.querySelector('.date');
+      const offsetElem = card.querySelector('.zone-offset');
+
+      timeElem.textContent = timeStr;
+      dateElem.textContent = formatterDate.format(now);
+      offsetElem.textContent = tzAbbr;
+    } catch (e) {
+      card.querySelector('.time').textContent = '不明なタイムゾーン';
+      card.querySelector('.date').textContent = '';
+      card.querySelector('.zone-offset').textContent = '';
+      console.error(`Invalid timezone: ${tz}`, e);
+    }
+  });
+
+  setTimeout(updateZones, 1000);
+}
+
+createZoneCards();
+updateZones();
+
+  </script>
+</body>
+</html>
