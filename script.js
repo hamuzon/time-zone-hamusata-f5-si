@@ -1,23 +1,25 @@
+let serverUtcTime = null;
+let clientReceivedAt = null;
 
-let baseUtc = null;
-let startTime = null;
-
-function initClock() {
-  baseUtc = new Date(new Date().toISOString());
-  startTime = new Date();
-  const now = new Date();
-  const msToNextSecond = 1000 - now.getMilliseconds();
-
-  setTimeout(() => {
-    updateZones();
-    setInterval(updateZones, 1000);
-  }, msToNextSecond);
+function fetchServerTime() {
+  fetch('/api/time')
+    .then(res => res.json())
+    .then(data => {
+      serverUtcTime = new Date(data.utc);
+      clientReceivedAt = new Date();
+      syncToFullSecond();
+    })
+    .catch(err => {
+      console.error("サーバーから時間を取得できませんでした。", err);
+    });
 }
 
 function updateZones() {
+  if (!serverUtcTime || !clientReceivedAt) return;
+
   const now = new Date();
-  const elapsed = now - startTime;
-  const currentUtc = new Date(baseUtc.getTime() + elapsed);
+  const elapsed = now - clientReceivedAt;
+  const currentUtc = new Date(serverUtcTime.getTime() + elapsed);
 
   document.querySelectorAll('.zone-card').forEach(card => {
     const tz = card.dataset.timezone;
@@ -43,7 +45,8 @@ function updateZones() {
       const parts = formatterTime.formatToParts(currentUtc);
       const timeParts = parts.filter(p => p.type !== 'timeZoneName');
       const timeStr = timeParts.map(p => p.value).join('');
-      const tzAbbr = parts.find(p => p.type === 'timeZoneName')?.value || '';
+      const tzNamePart = parts.find(p => p.type === 'timeZoneName');
+      const tzAbbr = tzNamePart ? tzNamePart.value : '';
 
       card.querySelector('.time').textContent = timeStr;
       card.querySelector('.date').textContent = formatterDate.format(currentUtc);
@@ -56,4 +59,16 @@ function updateZones() {
   });
 }
 
-initClock();
+// 🔧 最初の1回だけ「0秒」で開始するための処理
+function syncToFullSecond() {
+  const now = new Date();
+  const millisToNextSecond = 1000 - now.getMilliseconds();
+
+  setTimeout(() => {
+    updateZones(); // 0秒ちょうどで1回実行
+    setInterval(updateZones, 1000); // その後は毎秒更新
+  }, millisToNextSecond);
+}
+
+// 実行開始
+fetchServerTime();
