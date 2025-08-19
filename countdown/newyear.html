@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>New Year Countdown</title>
+  <link rel="icon" href="https://home.hamusata.f5.si/icon.svg" type="image/svg+xml" />
+   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap" rel="stylesheet" />
+
+  <style>
+    #countdown {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      min-width: 320px;
+      max-width: 90vw;
+      margin: 0 auto;
+    }
+
+    .time-box {
+      background-color: #c3e0c8;
+      border-radius: 12px;
+      padding: 1.2rem 1.8rem;
+      box-shadow: 0 6px 14px rgba(0, 121, 61, 0.3);
+      font-family: "Courier New", Courier, monospace;
+      font-weight: 700;
+      font-size: 2.2rem;
+      color: #264d25;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.2s, background-color 0.3s, box-shadow 0.3s;
+    }
+
+    .time-box:hover {
+      transform: scale(1.05);
+      background-color: #a0c7a0;
+      box-shadow: 0 8px 18px rgba(0, 121, 61, 0.5);
+    }
+
+    .unit {
+      font-size: 1rem;
+      color: #405c33;
+      margin-top: 5px;
+    }
+
+    @media screen and (max-width: 768px) {
+      .time-box {
+        font-size: 1.8rem;
+        padding: 0.9rem 1.3rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>
+      <span class="lang-ja">新年カウントダウン</span>
+      <span class="lang-en">New Year Countdown</span>
+    </h1>
+
+    <div id="countdown">
+      <div class="time-box" id="years-box">
+        <span id="years">--</span>
+        <span class="unit lang-ja">年</span>
+        <span class="unit lang-en">y</span>
+      </div>
+      <div class="time-box" id="months-box">
+        <span id="months">--</span>
+        <span class="unit lang-ja">月</span>
+        <span class="unit lang-en">M</span>
+      </div>
+      <div class="time-box">
+        <span id="days">--</span>
+        <span class="unit lang-ja">日</span>
+        <span class="unit lang-en">d</span>
+      </div>
+      <div class="time-box">
+        <span id="hours">--</span>
+        <span class="unit lang-ja">時</span>
+        <span class="unit lang-en">h</span>
+      </div>
+      <div class="time-box">
+        <span id="minutes">--</span>
+        <span class="unit lang-ja">分</span>
+        <span class="unit lang-en">m</span>
+      </div>
+      <div class="time-box">
+        <span id="seconds">--</span>
+        <span class="unit lang-ja">秒</span>
+        <span class="unit lang-en">s</span>
+      </div>
+    </div>
+
+    <div id="message">
+      <span class="lang-ja">新年まであと</span>
+      <span class="lang-en">Time left until New Year</span>
+    </div>
+  </div>
+
+  <script>
+    const langJaElems = document.querySelectorAll('.lang-ja');
+    const langEnElems = document.querySelectorAll('.lang-en');
+    let lang = 'ja';
+
+    function initLanguageDisplay() {
+      langJaElems.forEach(el => el.style.display = (lang === 'ja') ? 'inline' : 'none');
+      langEnElems.forEach(el => el.style.display = (lang === 'en') ? 'inline' : 'none');
+    }
+
+    function switchLanguage() {
+      lang = (lang === 'ja') ? 'en' : 'ja';
+      initLanguageDisplay();
+      updateCountdown();
+    }
+
+    function updateCountdown() {
+      const now = new Date();
+      const year = now.getFullYear();
+      let newYear = new Date(year + 1, 0, 1, 0, 0, 0);
+      if (now >= newYear) newYear = new Date(year + 2, 0, 1, 0, 0, 0);
+
+      const diff = newYear - now;
+
+      if (diff <= 0) {
+        ['years','months','days','hours','minutes','seconds'].forEach(id => document.getElementById(id).textContent = '00');
+        document.getElementById('message').innerHTML = (lang==='ja') ? 'あけましておめでとうございます！' : 'Happy New Year!';
+        return;
+      }
+
+      const totalSeconds = Math.floor(diff / 1000);
+
+      // 年・月・日・時・分・秒 計算
+      const years = Math.floor(totalSeconds / (3600*24*365));
+      const months = Math.floor((totalSeconds % (3600*24*365)) / (3600*24*30));
+      const days = Math.floor((totalSeconds % (3600*24*30)) / (3600*24));
+      const hours = Math.floor((totalSeconds % (3600*24)) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      // 自動でゼロなら非表示
+      document.getElementById('years-box').style.display = (years > 0) ? 'flex' : 'none';
+      document.getElementById('months-box').style.display = (months > 0) ? 'flex' : 'none';
+
+      document.getElementById('years').textContent = String(years).padStart(2,'0');
+      document.getElementById('months').textContent = String(months).padStart(2,'0');
+      document.getElementById('days').textContent = String(days).padStart(2,'0');
+      document.getElementById('hours').textContent = String(hours).padStart(2,'0');
+      document.getElementById('minutes').textContent = String(minutes).padStart(2,'0');
+      document.getElementById('seconds').textContent = String(seconds).padStart(2,'0');
+
+      document.getElementById('message').innerHTML = `
+        <span class="lang-ja" style="display:${lang==='ja'?'inline':'none'};">新年まであと</span>
+        <span class="lang-en" style="display:${lang==='en'?'inline':'none'};">Time left until New Year</span>
+      `;
+    }
+
+    initLanguageDisplay();
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+    document.body.addEventListener('click', switchLanguage);
+  </script>
+</body>
+</html>
