@@ -1,0 +1,5 @@
+# /countdown/win10 でも /win10 を表示
+/countdown/win10    /win10    200
+
+# /countdown/newyear でも /newyear を表示
+/countdown/newyear  /newyear  200
