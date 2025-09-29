@@ -1,28 +1,25 @@
-import fs from "fs";
-import path from "path";
+// functions/countdown.js
 
-/**
- * Cloudflare Pages Function
- * /countdown/* にアクセスされたら public 内の対応ファイルを返す
- */
 export async function onRequest(context) {
-  const urlPath = context.request.url.replace(context.env.PAGES_BRANCH, ""); // URLのパスを取得
-  const pathname = new URL(context.request.url).pathname;
+  const url = new URL(context.request.url);
+  const pathname = url.pathname;
 
-  let fileName;
+  // public 内のHTMLを静的 import
+  const htmlFiles = {
+    "/countdown/win10.html": `<!DOCTYPE html>
+<html><head><title>Windows 10 Countdown</title></head>
+<body><h1>Windows 10 Countdown Page</h1></body></html>`,
 
-  if (pathname.endsWith("win10.html")) {
-    fileName = "win10.html";
-  } else if (pathname.endsWith("newyear.html")) {
-    fileName = "newyear.html";
+    "/countdown/newyear.html": `<!DOCTYPE html>
+<html><head><title>New Year Countdown</title></head>
+<body><h1>New Year Countdown Page</h1></body></html>`,
+  };
+
+  if (pathname in htmlFiles) {
+    return new Response(htmlFiles[pathname], {
+      headers: { "Content-Type": "text/html;charset=UTF-8" },
+    });
   } else {
     return new Response("Not Found", { status: 404 });
   }
-
-  const filePath = path.resolve("public", fileName);
-  const html = fs.readFileSync(filePath, "utf8");
-
-  return new Response(html, {
-    headers: { "Content-Type": "text/html;charset=UTF-8" },
-  });
 }
