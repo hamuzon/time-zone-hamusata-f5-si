@@ -1,13 +1,21 @@
 # タイム・ゾーン時計 / Time Zone Clock
 
-シンプルな多タイムゾーン対応の時計Webアプリです。  
-JavaScriptのIntl APIを使い、指定した都市の現在時刻と日付、タイムゾーン略称をリアルタイムに表示します。
+シンプルな多タイムゾーン対応の時計 Web アプリです。  
+JavaScript の Intl API を使い、指定した都市の現在時刻、日付、タイムゾーン略称をリアルタイムに表示します。
 
-また、URLが `https://time-zone.hamusata.f5.si/newyear` や `https://time-zone.hamusata.f5.si/countdown/newyear` の場合は、新年までのカウントダウンを表示します。
-
-A simple multi-timezone clock web app.  
-Uses JavaScript's Intl API to display current time, date, and timezone abbreviation of specified cities in real time.  
-When accessed via  `https://time-zone.hamusata.f5.si/newyear` , `https://time-zone.hamusata.f5.si/countdown/newyear` , it shows a countdown to the New Year.
+また、URL が  
+`https://time-zone.hamusata.f5.si/newyear`  
+`https://time-zone.hamusata.f5.si/countdown/newyear`  
+の場合は、新年までのカウントダウンを表示します。
 
 ---
 
+# Time Zone Clock
+
+A simple multi-timezone clock web app.  
+It uses JavaScript’s Intl API to display the current time, date, and timezone abbreviation for selected cities in real time.
+
+When accessed via:  
+`https://time-zone.hamusata.f5.si/newyear`  
+`https://time-zone.hamusata.f5.si/countdown/newyear`  
+the app displays a countdown to the New Year.
