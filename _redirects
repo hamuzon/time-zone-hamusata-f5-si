@@ -1,7 +1,10 @@
-# /countdown/newyear 対応 pas
-/countdown/newyear  /newyear  200
+# /countdown/newyear 対応
+/countdown/newyear       /newyear        200
+/newyear                 /newyear        200
+/countdown/newyear_v2    /newyear        200
+/newyear_v2              /newyear        200
 
-# newyear_v1_old.html 対応 pas
+# newyear_v1_old.html 対応
 /countdown/newyear_v1_old  /newyear_v1_old  200
-/countdown/newyear_v1  /newyear_v1_old  200
-/newyear_v1  /newyear_v1_old  200
+/countdown/newyear_v1      /newyear_v1_old  200
+/newyear_v1                /newyear_v1_old  200
